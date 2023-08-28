@@ -1,24 +1,41 @@
 package study.datajpa.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "userName", "age"})
 public class Member {
 
     @Id
     @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
-    private String name;
+    private String userName;
+    private int age;
 
-    protected Member() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+
+    public Member(String userName) {
+        this.userName = userName;
     }
 
-    public Member(String name) {
-        this.name = name;
+    public Member(String userName, int age, Team team) {
+        this.userName = userName;
+        this.age = age;
+        this.team = team;
+    }
+
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
     }
 }

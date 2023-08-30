@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
@@ -28,7 +30,17 @@ class MemberJpaRepositoryTest {
     }
 
     @Test
-    void save() {
+    void findByUsernameAndAgeGreaterThan() {
+        Member member1 = new Member("userName1", 10);
+        Member member2 = new Member("userName1", 20);
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+
+        List<Member> result = memberJpaRepository.findByUsernameAndAgeGreaterThan("userName1", 15);
+
+        assertThat(result.get(0).getUserName()).isEqualTo("userName1");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
     }
 
     @Test

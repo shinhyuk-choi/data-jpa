@@ -11,6 +11,7 @@ import study.datajpa.entity.Team;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -118,6 +119,30 @@ class MemberRepositoryTest {
         // then
         assertThat(result.get(0).getUserName()).isEqualTo(member1.getUserName());
         assertThat(result.get(1).getUserName()).isEqualTo(member2.getUserName());
+
+    }
+
+    @Test
+    void testReturnType() {
+        // given
+        Member member1 = new Member("userName1", 10);
+        Member member2 = new Member("userName2", 10);
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        // when
+        List<Member> result = memberRepository.findListByUserName("userName1");
+        Member result2 = memberRepository.findMemberByUserName("userName1");
+        Member result4 = memberRepository.findMemberByUserName("userName4");
+        Optional<Member> result3 = memberRepository.findOptionalByUserName("userName3");
+
+        // then
+        assertThat(result instanceof List<Member>).isEqualTo(true);
+        assertThat(result2 instanceof Member).isEqualTo(true);
+        assertThat(result3 instanceof Optional).isEqualTo(true);
+        assertThat(result4).isEqualTo(null);
+
 
     }
 

@@ -3,6 +3,10 @@ package study.datajpa.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -17,7 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 @Transactional
-@Rollback(false)
+//@Rollback(false)
 class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
@@ -143,6 +147,32 @@ class MemberRepositoryTest {
         assertThat(result3 instanceof Optional).isEqualTo(true);
         assertThat(result4).isEqualTo(null);
 
+
+    }
+
+    @Test
+    void paging() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        PageRequest pageRequest = PageRequest.of(1, 2, Sort.by(Sort.Direction.DESC, "userName"));
+
+        // when
+        Page<Member> result = memberRepository.findByAge(10, pageRequest);
+        Page<MemberDto> toMap = result.map(member -> new MemberDto(member.getId(), member.getUserName(), null));
+
+        // then
+        List<Member> content = result.getContent();
+        long totalElements = result.getTotalElements();
+        assertThat(content.size()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(5);
+        assertThat(result.getNumber()).isEqualTo(1);
+        assertThat(result.isFirst()).isFalse();
+        assertThat(result.hasNext()).isTrue();
 
     }
 

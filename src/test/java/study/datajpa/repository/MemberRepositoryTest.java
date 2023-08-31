@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +29,9 @@ class MemberRepositoryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -175,5 +179,79 @@ class MemberRepositoryTest {
         assertThat(result.hasNext()).isTrue();
 
     }
+    @Test
+    void bulkAgePlus() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 22));
+
+        // when
+        int resultCount = memberRepository.bulkAgePlus(20);
+//        em.clear()
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
+    }
+    @Test
+    void findMemberLazy() {
+        // given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUserName());
+            System.out.println("member.teamClass = " + member.getTeam().getClass()); // Team$HibernateProxy$Zj7Sc0SH
+            System.out.println("member.team = " + member.getTeam().getTeamName()); // LazyLoading => N+1
+        }
+
+        // then
+
+    }
+
+    @Test
+    void findMemberFetchJoin() {
+        // given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> members = memberRepository.findMemberFetchJoin();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUserName());
+            System.out.println("member.teamClass = " + member.getTeam().getClass()); // Team
+            System.out.println("member.team = " + member.getTeam().getTeamName()); // not N+1
+        }
+
+        // then
+
+    }
+
 
 }

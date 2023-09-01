@@ -281,5 +281,22 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    void queryHint() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+        Member findMember = memberRepository.findReadOnlyByUserName("member1");
+        findMember.setUserName("member2"); // query hint로 영속성 컨텍스트에서 update query를 날리지 않는다
+        em.flush();
+
+        // then
+    }
+
+
 
 }

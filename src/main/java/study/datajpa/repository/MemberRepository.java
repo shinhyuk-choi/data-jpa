@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom{
     //    구현체가 없지만 동작을 하는 이유
 //    spring data jpa가 구현체를 알아서 주입한다.
     List<Member> findByUserNameAndAgeGreaterThan(String userName, int age);

@@ -297,6 +297,22 @@ class MemberRepositoryTest {
         // then
     }
 
+    @Test
+    void lock() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> findMembers = memberRepository.findLockByUserName("member1");
+        // select for update
+        // 실시간 트래픽이 많은 서비스에서는 락은 지양해야 한다.
+
+        // then
+    }
+
 
 
 }
